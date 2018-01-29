@@ -1,0 +1,20 @@
+.hotspots-wrapper{
+    text-align: center;
+}
+.hotspots-container {
+    position: relative;
+    display: inline-block;
+}
+.hotspot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 30px;
+    width: 30px;
+    background-color: transparent;
+    opacity: 0.7;
+    border-radius: 20px !important;
+}
+.hotspot.visible {
+    background-color: red;
+}

@@ -1,0 +1,103 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Hotspotter</title>
+    
+    <!-- Styles -->
+    <link href="css/styles.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+    <h1>Hotspotter</h1>
+
+    <p>In this article I'll show you how to create and customize your own image mapper</p>
+    
+    <h2>Scenario</h2>
+    
+    <p>We need to create out own image map, so we can relate some information on the image with our data</p>
+
+    <h2>Let's begin</h2>
+
+    <p>The purpose is that simple... bla bla bla</p>
+    <p>Click on the image to add some hotspots</p>
+
+    <div id="hotspots-image-container" class="hotspots-wrapper">
+        <div class="hotspots-container">
+            <img src="A_Brouhot_car_in_Paris,_1910.jpg" />
+            <div id="piece-dialog-alert"></div>
+        </div>
+    </div>
+
+    <textarea class="form-control" rows="25" style="width:100%;">
+    jQuery(document).ready(function($) {
+        var hotspots = {
+            init: function(settings) {
+            hotspots.settings = settings;
+            hotspots.readSettings();
+            hotspots.setup();
+            },
+            readSettings: function() {
+            console.log(hotspots.settings);
+            },
+            setup: function() {
+            hotspots.start();
+            },
+            start: function() {
+            hotspots.addHotspots();
+            /*pieces.addPiece();
+            pieces.cancelPiece();
+            pieces.savePiece();
+            pieces.editPiece();
+            pieces.removePiece();*/
+            },
+            getHotspotPosition: function(evt, el, hotspotsize, percent) {
+            var left = el.offset().left;
+            var top = el.offset().top;
+            var hotspot = hotspotsize ? hotspotsize : 0;
+            if (percent) {
+                x = (evt.pageX - left - (hotspot / 2)) / el.outerWidth() * 100 + '%';
+                y = (evt.pageY - top - (hotspot / 2)) / el.outerHeight() * 100 + '%';
+            } else {
+                x = (evt.pageX - left - (hotspot / 2));
+                y = (evt.pageY - top - (hotspot / 2));
+            }
+            return {
+                x: x,
+                y: y
+            };
+            },
+            addHotspots: function() {
+            hotspots.coords = new Array();
+            // render hotspot on image and append coords to array
+            hotspots.settings.imageContainer.find('.hotspots-container').click(function(e) {
+                var hp = hotspots.getHotspotPosition(e, $(this), 20, true); // true = percent | false or no attr = px
+                var hotspot = $('<div class="hotspot visible">').css({
+                    left: hp.x,
+                    top: hp.y,
+                });
+                //render
+                $(this).append(hotspot);
+                //add to array
+                hotspots.coords.push(hp.x + ',' + hp.y);
+                //$(".boxer-info span").text("X: " + hp.x + ", Y: " + hp.y);
+            });
+            },
+        };
+        hotspots.init({
+            coords: null,
+            imageContainer: $('#hotspots-image-container'),
+        });
+    });                                               
+    </textarea>
+
+
+</body>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>  
+<script src="js/add-hotspots.js"></script>  
+
+</html>
+
