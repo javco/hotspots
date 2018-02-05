@@ -1,3 +1,11 @@
+a{
+    text-decoration: none;
+    color: blue;
+}
+
+/*
+* Hotspots
+*/
 .hotspots-wrapper{
     text-align: center;
 }
@@ -17,4 +25,40 @@
 }
 .hotspot.visible {
     background-color: red;
+}
+
+/*
+* Category edit popup
+*/
+#edit-category{
+    display: none;
+    background-color: darksalmon;
+    padding: 20px;
+    max-width: 320px;
+    margin: 20px auto
+}
+#edit-category p{
+    margin: 0 0 15px;
+}
+#edit-category a.save{
+    background-color: cadetblue;
+    color: black;
+    padding: 5px 15px;
+}
+#edit-category a.cancel{
+    background-color: brown;
+    color: black;
+    padding: 5px 15px;
+}
+
+/*
+* Image category popup
+*/
+#popup-dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: bisque;
+    padding: 0px 25px;
+    z-index: 1;
 }

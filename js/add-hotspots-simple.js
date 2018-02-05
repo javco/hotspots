@@ -1,3 +1,7 @@
+/**
+ * Simple example. 
+ * It just adds hotspots to image.
+ */
 jQuery(document).ready(function($) {
   var hotspots = {
     init: function(settings) {
@@ -13,11 +17,6 @@ jQuery(document).ready(function($) {
     },
     start: function() {
       hotspots.addHotspots();
-      /*pieces.addPiece();
-      pieces.cancelPiece();
-      pieces.savePiece();
-      pieces.editPiece();
-      pieces.removePiece();*/
     },
     getHotspotPosition: function(evt, el, hotspotsize, percent) {
       var left = el.offset().left;
@@ -48,12 +47,11 @@ jQuery(document).ready(function($) {
         $(this).append(hotspot);
         //add to array
         hotspots.coords.push(hp.x + ',' + hp.y);
-        //$(".boxer-info span").text("X: " + hp.x + ", Y: " + hp.y);
       });
     },
   };
   hotspots.init({
     coords: null,
-    imageContainer: $('#hotspots-image-container'),
+    imageContainer: $('#hotspots-image-container-simple-example'),
   });
 });

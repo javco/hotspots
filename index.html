@@ -24,10 +24,12 @@
     <p>The purpose is that simple... bla bla bla</p>
     <p>Click on the image to add some hotspots</p>
 
-    <div id="hotspots-image-container" class="hotspots-wrapper">
+    <!--
+        Add /js/add-hotspots-simple.js script for this example
+    -->
+    <div id="hotspots-image-container-simple-example" class="hotspots-wrapper">
         <div class="hotspots-container">
             <img src="A_Brouhot_car_in_Paris,_1910.jpg" />
-            <div id="piece-dialog-alert"></div>
         </div>
     </div>
 
@@ -47,11 +49,6 @@
             },
             start: function() {
             hotspots.addHotspots();
-            /*pieces.addPiece();
-            pieces.cancelPiece();
-            pieces.savePiece();
-            pieces.editPiece();
-            pieces.removePiece();*/
             },
             getHotspotPosition: function(evt, el, hotspotsize, percent) {
             var left = el.offset().left;
@@ -82,22 +79,282 @@
                 $(this).append(hotspot);
                 //add to array
                 hotspots.coords.push(hp.x + ',' + hp.y);
-                //$(".boxer-info span").text("X: " + hp.x + ", Y: " + hp.y);
             });
             },
         };
         hotspots.init({
             coords: null,
-            imageContainer: $('#hotspots-image-container'),
+            imageContainer: $('#hotspots-image-container-simple-example'),
         });
     });                                               
     </textarea>
 
+    <h2>Add hotspots to categories</h2>
+
+    <p>Now imagine that you need to mark different positions on the image concerning to the same attributes.</p>
+    <p>For the purpose, we will work with three groups: wheels and moustaches.</p>
+    <p>First, click on the category to hotspotify <strong>(wheels, moustaches and hats)</strong>.</p>
+    <p>As you can see, a dialog is shown for the category we are going to hotspotify. This means that we are currently editing the selected category and we are ready to add some hotspots for the category. Once you are done, click save for the <i>category dialog</i> to save changes.</p>
+    <p>Now if you take a look to your browser inspector, you will see that all the hotspots you have set on the image have been assigned to the <i>data-coords</i> attributes on the <strong>#categories-list > li</strong> element as JSON array.</p>
+
+    <div id="categories-list">
+        <ul>
+            <li data-category="1" data-coords=""><a href="#">wheels</a></li>
+            <li data-category="2" data-coords=""><a href="#">moustaches</a></li>
+            <li data-category="3" data-coords=""><a href="#">hats</a></li>
+        </ul>
+    </div>
+
+    <div id="edit-category">
+        <p>Editing category <strong><span class="category"></span></strong></p>
+        <p>Hotspot the category on the image below, and click save.</p>
+        <div class="piece-form-btns">
+            <div class="form-group">
+                <a class="save" href="#">save</a>
+                <a class="cancel" href="#">cancel</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="hotspots-image-container-advanced-example" class="hotspots-wrapper">
+        <div class="hotspots-container">
+            <img src="A_Brouhot_car_in_Paris,_1910.jpg" />
+            <div id="category-dialog-alert"></div>
+        </div>
+    </div>
+
+    <p>And here is the code used: </p>
+
+    <textarea class="form-control" rows="25" style="width:100%;">
+        /**
+        * Advanced example. 
+        * Add hotspots to catergories
+        */
+       jQuery(document).ready(function($) {
+         var hotspots = {
+           init: function(settings) {
+             hotspots.settings = settings;
+             hotspots.readSettings();
+             hotspots.setup();
+           },
+           readSettings: function() {
+             console.log(hotspots.settings);
+           },
+           setup: function() {
+             hotspots.start();
+           },
+           start: function() {
+             hotspots.addCategoryHotspots();
+           },
+           getHotspotPosition: function(evt, el, hotspotsize, percent) {
+             var left = el.offset().left;
+             var top = el.offset().top;
+             var hotspot = hotspotsize ? hotspotsize : 0;
+             if (percent) {
+                 x = (evt.pageX - left - (hotspot / 2)) / el.outerWidth() * 100 + '%';
+                 y = (evt.pageY - top - (hotspot / 2)) / el.outerHeight() * 100 + '%';
+             } else {
+                 x = (evt.pageX - left - (hotspot / 2));
+                 y = (evt.pageY - top - (hotspot / 2));
+             }
+             return {
+                 x: x,
+                 y: y
+             };
+           },
+           addCategoryHotspots: function(){
+             $('#categories-list').on('click','li a', function(event){
+               event.preventDefault();
+       
+               //prevently remove all hotspots from the image
+               hotspots.settings.imageContainer.find('.hotspots-container .hotspot').remove();
+               //get selected item
+               var listItem = $(this).parent();
+               //get current hotspots (aka 'hps') for selected category
+               var hps = listItem.attr('data-coords');
+               //initialize 'coords' array
+               hotspots.coords = new Array();
+       
+               //check for currents hotspots. If so:
+               // 1. draw them on image
+               // 2. add them to  
+               if(hps.trim() != ""){
+                 hps = JSON.parse(hps);
+                 $.each( hps, function( key, value ) {
+                   hps = value.split(',');
+                   var hotspot = $('<div class="hotspot">').css({
+                     left: point[0],
+                     top: point[1],
+                   });
+                   $('.hotspots-container').append(hotspot);
+                   //insert into pieces.coords array
+                   hotspots.coords.push(point[0]+','+point[1]);
+                 });
+               }
+       
+               //show 'edit-category' dialog
+               $("#edit-category").show();
+               $("#edit-category").find('span.category').text( $(this).text() );
+       
+               //set 'hotspots' functionality
+               hotspots.settings.imageContainer.find('.hotspots-container').click(function(e) {
+                 var hp = hotspots.getHotspotPosition(e, $(this), 20, true); // true = percent | false or no attr = px
+                 var hotspot = $('<div class="hotspot visible">').css({
+                     left: hp.x,
+                     top: hp.y,
+                 });
+                 //render hotspots
+                 $(this).append(hotspot);
+                 //add hotspots to array
+                 hotspots.coords.push(hp.x + ',' + hp.y);
+               });
+       
+               //save category
+               $('#edit-category a.save').unbind('click');
+               $('#edit-category a.save').click(function(event){
+                 event.preventDefault();
+                 //add recently added hostspots to category as JSON array
+                 listItem.attr('data-coords', JSON.stringify(hotspots.coords));
+                 //remove all hotspots from the image
+                 hotspots.settings.imageContainer.find('.hotspots-container .hotspot').remove();
+                 //hide dialog
+                 $("#edit-category").hide();
+               });
+       
+               //cancel category
+               $('#edit-category a.cancel').unbind('click');
+               $('#edit-category a.cancel').click(function(event){
+                 event.preventDefault();
+                 //remove all hotspots from the image
+                 hotspots.settings.imageContainer.find('.hotspots-container .hotspot').remove();
+                 //hide dialog
+                 $("#edit-category").hide();
+               });
+               
+             });
+           },
+         };
+         hotspots.init({
+           coords: null,
+           imageContainer: $('#hotspots-image-container-advanced-example'),
+         });
+       });       
+    </textarea>
+
+    <p>At this point we can store the hotspots coords in <i>data-coords</i> attributes into our database or whatever. But this is up to you</p>
+
+    <h2>Last step: add behaviour to our hotspots</h2>
+
+    <p>Finally we want to add some functionality to our recently added hotspots.</p>
+
+    <p>It could be any behaviour you need, but for simpleness, we are just going to show a pop-up dialog every time the user hovers over some of our hotspots, indicating the category the hotspot belongs to for the next set list.</p>
+
+    <p>Hopefully, the information for the coords to draw sholud be store into our database or whatever, fetch and parse them as a JSON array. For the purpose of this demo, the hotspots coords are stored at <i>categories.json</i>.</p>
+    
+    <div id="hotspots-image-container-advanced-example-show-hotspots" class="hotspots-wrapper">
+        <div class="hotspots-container">
+            <img src="A_Brouhot_car_in_Paris,_1910.jpg" />
+            <div id="popup-dialog"></div>
+        </div>
+    </div>
+
+    <p>And here is the code used: </p>
+
+    <textarea class="form-control" rows="25" style="width:100%;">
+        /**
+        * Advanced example. 
+        * Show hotspots
+        */
+        jQuery(document).ready(function($) {
+        var hotspots = {
+            init: function(settings) {
+            hotspots.settings = settings;
+            hotspots.readSettings();
+            hotspots.setup();
+            },
+            readSettings: function() {
+            console.log(hotspots.settings);
+            },
+            setup: function() {
+            hotspots.start();
+            },
+            start: function() {
+            hotspots.attachHotspots();
+            },
+            attachHotspots: function(){
+            $.getJSON( 'ajax/categories.json', function( data ) {
+                //attach wheels, moustaches and hats hotspots
+                $.each( data, function( key, value ) {
+                console.log(key);  
+                console.log(value);
+                $.each( value, function( k, v ) {
+                    var point = v.split(',');
+                    var hotspot = $('<div class="hotspot visible" data-category="'+key+'">')
+                    .css({
+                        left: point[0],
+                        top: point[1],
+                    });
+                    hotspots.settings.imageContainer.find('.hotspots-container').append(hotspot);
+                });
+                });
+                //hotspots hover functionality
+                hotspots.settings.imageContainer.find('.hotspots-container .hotspot').each(function(){
+                $(this).hover(function(){
+                    var category = $(this).attr('data-category'); 
+                    var left = $(this).css('left');
+                    var top = $(this).css('top');
+
+                    //clean dialog alert
+                    hotspots.settings.popupDialog.empty();
+                    //set as active
+                    hotspots.settings.popupDialog.addClass('active');
+
+                    //new dialog alert position
+                    hotspots.settings.popupDialog.css('top', parseInt(top) - 10);
+                    hotspots.settings.popupDialog.css('left', parseInt(left) + 50 );
+
+                    //wrap into div.category-dialog and append
+                    var dialogBox = '<div class="category-dialog" data-category="' + category + '"><p>' + category.toUpperCase() + '</p></div>';
+                    $( dialogBox ).appendTo(hotspots.settings.popupDialog);
+
+                    //set on hover out --> hide
+                    $(hotspots.settings.popupDialog).hover(function () {
+                    hotspots.settings.popupDialog.data('hovering', true);
+                    }, function () {
+                    setTimeout(function() {
+                        //clean dialog popup
+                        hotspots.settings.popupDialog.data('hovering', false);
+                        hotspots.settings.popupDialog.removeClass('active');
+                        hotspots.settings.popupDialog.empty();
+                    }, 2000);
+                    });
+                }, function(){
+                    setTimeout(function() {
+                    if( !hotspots.settings.popupDialog.data('hovering') ){
+                        hotspots.settings.popupDialog.removeClass('active');
+                        //clean dialog popup
+                        hotspots.settings.popupDialog.empty();
+                    }                  
+                    }, 3000);
+                });
+                });
+            });
+            },
+        };
+        hotspots.init({
+            coords: null,
+            imageContainer: $('#hotspots-image-container-advanced-example-show-hotspots'),
+            popupDialog: $('#popup-dialog'),
+        });
+        });
+    </textarea>
 
 </body>
 
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>  
-<script src="js/add-hotspots.js"></script>  
+<script src="js/add-hotspots-simple.js"></script>  
+<script src="js/add-hotspots-advanced.js"></script>  
+<script src="js/show-hotspots-advanced.js"></script>  
 
 </html>
 
